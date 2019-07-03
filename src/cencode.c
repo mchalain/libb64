@@ -4,13 +4,23 @@ cencoder.c - c source to a base64 encoding algorithm implementation
 This is part of the libb64 project, and has been placed in the public domain.
 For details, see http://sourceforge.net/projects/libb64
 */
-
 #include <b64/cencode.h>
 
-const int CHARS_PER_LINE = 72;
+int CHARS_PER_LINE = 72;
+int LIBB64_URLENCODING = 0;
+static const char encoding_std[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+static const char encoding_url[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+static const char* encoding = encoding_std;
+static char trailing_char = '=';
 
 void base64_init_encodestate(base64_encodestate* state_in)
 {
+	if (LIBB64_URLENCODING)
+	{
+		encoding = encoding_url;
+		CHARS_PER_LINE = -1;
+		trailing_char = '\0';
+	}
 	state_in->step = step_A;
 	state_in->result = 0;
 	state_in->stepcount = 0;
@@ -18,8 +28,7 @@ void base64_init_encodestate(base64_encodestate* state_in)
 
 char base64_encode_value(char value_in)
 {
-	static const char* encoding = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-	if (value_in > 63) return '=';
+	if (value_in > 63) return trailing_char;
 	return encoding[(int)value_in];
 }
 
@@ -73,7 +82,7 @@ int base64_encode_block(const char* plaintext_in, int length_in, char* code_out,
 			*codechar++ = base64_encode_value(result);
 			
 			++(state_in->stepcount);
-			if (state_in->stepcount == CHARS_PER_LINE/4)
+			if (CHARS_PER_LINE > 0 && state_in->stepcount == CHARS_PER_LINE/4)
 			{
 				*codechar++ = '\n';
 				state_in->stepcount = 0;
@@ -92,12 +101,16 @@ int base64_encode_blockend(char* code_out, base64_encodestate* state_in)
 	{
 	case step_B:
 		*codechar++ = base64_encode_value(state_in->result);
-		*codechar++ = '=';
-		*codechar++ = '=';
+		if (! LIBB64_URLENCODING)
+		{
+			*codechar++ = '=';
+			*codechar++ = '=';
+		}
 		break;
 	case step_C:
 		*codechar++ = base64_encode_value(state_in->result);
-		*codechar++ = '=';
+		if (! LIBB64_URLENCODING)
+			*codechar++ = '=';
 		break;
 	case step_A:
 		break;

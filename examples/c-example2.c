@@ -92,6 +92,7 @@ int main(int argc, char** argv)
 	FILE* inputFile;
 	FILE* encodedFile;
 	FILE* decodedFile;
+	LIBB64_URLENCODING=1;
 	
 	if (argc < 4)
 	{

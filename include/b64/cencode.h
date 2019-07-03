@@ -8,6 +8,9 @@ For details, see http://sourceforge.net/projects/libb64
 #ifndef BASE64_CENCODE_H
 #define BASE64_CENCODE_H
 
+#define __LIBB64_URLENCODING
+extern int LIBB64_URLENCODING; // set this variable to 1 for urlencoding (default 0)
+
 typedef enum
 {
 	step_A, step_B, step_C
