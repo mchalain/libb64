@@ -27,6 +27,10 @@ all: $(TARGETS) #strip
 libb64.a: cencode.o cdecode.o
 	$(AR) $(ARFLAGS) $@ $^
 
+libb64.so: CFLAGS+=-fPIC
+libb64.so: cencode.o cdecode.o
+	$(CC) -shared $(LDFLAGS) -o $@ $^
+
 strip:
 	strip $(BINARIES) *.exe
 
