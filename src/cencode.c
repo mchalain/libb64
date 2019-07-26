@@ -6,7 +6,6 @@ For details, see http://sourceforge.net/projects/libb64
 */
 #include <b64/cencode.h>
 
-int CHARS_PER_LINE = 72;
 int LIBB64_URLENCODING = 0;
 static const char encoding_std[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 static const char encoding_url[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
@@ -18,8 +17,12 @@ void base64_init_encodestate(base64_encodestate* state_in)
 	if (LIBB64_URLENCODING)
 	{
 		encoding = encoding_url;
-		CHARS_PER_LINE = -1;
-		trailing_char = '\0';
+		trailing_char = '.';
+	}
+	else
+	{
+		encoding = encoding_std;
+		trailing_char = '=';
 	}
 	state_in->step = step_A;
 	state_in->result = 0;
@@ -39,9 +42,9 @@ int base64_encode_block(const char* plaintext_in, int length_in, char* code_out,
 	char* codechar = code_out;
 	char result;
 	char fragment;
-	
+
 	result = state_in->result;
-	
+
 	switch (state_in->step)
 	{
 		while (1)
@@ -80,13 +83,8 @@ int base64_encode_block(const char* plaintext_in, int length_in, char* code_out,
 			*codechar++ = base64_encode_value(result);
 			result  = (fragment & 0x03f) >> 0;
 			*codechar++ = base64_encode_value(result);
-			
+
 			++(state_in->stepcount);
-			if (CHARS_PER_LINE > 0 && state_in->stepcount == CHARS_PER_LINE/4)
-			{
-				*codechar++ = '\n';
-				state_in->stepcount = 0;
-			}
 		}
 	}
 	/* control should not reach here */
@@ -96,7 +94,7 @@ int base64_encode_block(const char* plaintext_in, int length_in, char* code_out,
 int base64_encode_blockend(char* code_out, base64_encodestate* state_in)
 {
 	char* codechar = code_out;
-	
+
 	switch (state_in->step)
 	{
 	case step_B:
@@ -110,13 +108,14 @@ int base64_encode_blockend(char* code_out, base64_encodestate* state_in)
 	case step_C:
 		*codechar++ = base64_encode_value(state_in->result);
 		if (! LIBB64_URLENCODING)
+		{
 			*codechar++ = '=';
+		}
 		break;
 	case step_A:
 		break;
 	}
-	if (! LIBB64_URLENCODING)
-		*codechar++ = '\n';
+	*codechar++ = '\0';
 
 	return codechar - code_out;
 }
