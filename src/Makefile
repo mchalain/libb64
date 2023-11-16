@@ -28,7 +28,7 @@ libb64.a: cencode.o cdecode.o
 	$(AR) $(ARFLAGS) $@ $^
 
 libb64.so: CFLAGS+=-fPIC
-libb64.so: cencode.o cdecode.o
+libb64.so: cencode.o cdecode.o cencode32.o
 	$(CC) -shared $(LDFLAGS) -o $@ $^
 
 strip:
