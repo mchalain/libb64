@@ -21,14 +21,15 @@ namespace base64
 	{
 		base64_encodestate _state;
 		int _buffersize;
+		const char *encoding;
 
 		encoder(int buffersize_in = BUFFERSIZE)
-		: _buffersize(buffersize_in)
+		: _buffersize(buffersize_in), encoding(base64_encoding_std)
 		{}
 
 		int encode(char value_in)
 		{
-			return base64_encode_value(value_in);
+			return base64_encode_value(value_in, &_state);
 		}
 
 		int encode(const char* code_in, const int length_in, char* plaintext_out)
@@ -43,7 +44,7 @@ namespace base64
 
 		void encode(std::istream& istream_in, std::ostream& ostream_in)
 		{
-			base64_init_encodestate(&_state);
+			base64_init_encodestate(&_state, encoding);
 			//
 			const int N = _buffersize;
 			char* plaintext = new char[N];
@@ -64,7 +65,7 @@ namespace base64
 			codelength = encode_end(code);
 			ostream_in.write(code, codelength);
 			//
-			base64_init_encodestate(&_state);
+			base64_init_encodestate(&_state, encoding);
 
 			delete [] code;
 			delete [] plaintext;

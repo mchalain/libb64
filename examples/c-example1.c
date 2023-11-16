@@ -40,7 +40,7 @@ char* encode(const char* input)
 	
 	/*---------- START ENCODING ----------*/
 	/* initialise the encoder state */
-	base64_init_encodestate(&s);
+	base64_init_encodestate(&s, base64_encoding_std);
 	/* gather data from the input and send it to the output */
 	cnt = base64_encode_block(input, strlen(input), c, &s);
 	c += cnt;

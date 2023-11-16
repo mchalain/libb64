@@ -37,7 +37,7 @@ void encode(FILE* inputFile, FILE* outputFile)
 	
 	/*---------- START ENCODING ----------*/
 	/* initialise the encoder state */
-	base64_init_encodestate(&es);
+	base64_init_encodestate(&es, base64_encoding_url);
 	/* gather data from the input and send it to the output */
 	while (1)
 	{
@@ -92,7 +92,6 @@ int main(int argc, char** argv)
 	FILE* inputFile;
 	FILE* encodedFile;
 	FILE* decodedFile;
-	LIBB64_URLENCODING=1;
 	
 	if (argc < 4)
 	{
